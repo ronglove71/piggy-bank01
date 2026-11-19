@@ -93,7 +93,7 @@
     function openApp(pin) {
       lockScreen.classList.add('hidden');
       frame.classList.remove('hidden');
-      frame.src = GAS_URL + '?k=' + encodeURIComponent(pin);
+      frame.src = pin ? GAS_URL + '?k=' + encodeURIComponent(pin) : GAS_URL;
     }
 
     function showLock(msg) {

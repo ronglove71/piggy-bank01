@@ -1,5 +1,5 @@
 // 小豬存錢筒 PWA 外殼：只快取外殼本身，記帳資料仍在 GAS／試算表
-const CACHE = 'piggy-shell-v1';
+const CACHE = 'piggy-shell-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 

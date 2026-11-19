@@ -124,10 +124,8 @@
     const configured = /^https:\/\/script\.google\.com\/.+\/exec$/.test(GAS_URL);
     if (!configured) {
       document.getElementById('setup-screen').classList.remove('hidden');
-    } else if (getPin()) {
+   } else {
       openApp(getPin());
-    } else {
-      showLock();
     }
 
     if ('serviceWorker' in navigator) {

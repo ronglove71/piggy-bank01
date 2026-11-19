@@ -2,9 +2,9 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>小豬存錢筒</title>
-  <meta name="theme-color" content="#FAF6F0" />
+  <meta name="theme-color" content="#FFFDF9" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -14,69 +14,120 @@
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
     body {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
       font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif; color: #4A3B32;
+      background: #FFFDF9;
+      /* iPhone 底部橫條的安全區，避免擋到記帳本的底部選單 */
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    #app-frame { display: block; width: 100%; height: 100%; border: 0; background: #FAF6F0; }
+    .screen {
+      position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px;
       background: #FAF6F0 radial-gradient(#D8CBB8 1.25px, transparent 1.25px); background-size: 18px 18px;
     }
     .card {
-      width: 100%; max-width: 360px; text-align: center; background: #FFFDF9;
-      border: 2px solid #4A3B32; border-radius: 22px; box-shadow: 3px 4px 0 #4A3B32; padding: 26px 20px;
+      width: 100%; max-width: 340px; text-align: center; background: #FFFDF9;
+      border: 2px solid #4A3B32; border-radius: 22px; box-shadow: 3px 4px 0 #4A3B32; padding: 24px 20px;
     }
-    .logo { width: 112px; height: 112px; border-radius: 26px; border: 2px solid #4A3B32; box-shadow: 2px 3px 0 #4A3B32; }
-    h1 { font-size: 22px; font-weight: 900; margin-top: 14px; }
+    .logo { width: 96px; height: 96px; border-radius: 24px; border: 2px solid #4A3B32; box-shadow: 2px 3px 0 #4A3B32; }
+    h1 { font-size: 21px; font-weight: 900; margin-top: 12px; }
     .sub { font-size: 13px; font-weight: 700; color: #7D685B; margin-top: 4px; }
-    .btn {
-      display: block; width: 100%; margin-top: 18px; padding: 12px; font-size: 15px; font-weight: 900;
-      color: #4A3B32; text-decoration: none; background: #F7E199; border: 2px solid #4A3B32;
-      border-radius: 14px; box-shadow: 2px 3px 0 #4A3B32;
+    input {
+      width: 100%; margin-top: 18px; padding: 12px; font-size: 17px; font-weight: 800; text-align: center;
+      border: 2px solid #4A3B32; border-radius: 14px; background: #FAF6F0; outline: none; color: #4A3B32;
     }
-    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
-    .tips { margin-top: 18px; padding-top: 14px; border-top: 2px dashed #D8CBB8; text-align: left; font-size: 13px; font-weight: 700; line-height: 1.7; }
-    .tips b { color: #C84B4B; }
-    .loading { margin-top: 16px; font-size: 14px; font-weight: 800; color: #7D685B; }
-    .hidden { display: none; }
+    input:focus { background: #fff; box-shadow: 0 0 0 3px #F7E199; }
+    button {
+      width: 100%; margin-top: 12px; padding: 12px; font-size: 15px; font-weight: 900; color: #4A3B32;
+      background: #F7E199; border: 2px solid #4A3B32; border-radius: 14px; box-shadow: 2px 3px 0 #4A3B32; font-family: inherit;
+    }
+    button:active { transform: translate(2px, 2px); box-shadow: none; }
+    .err { margin-top: 10px; font-size: 13px; font-weight: 800; color: #C84B4B; min-height: 18px; }
+    .hint { margin-top: 14px; padding-top: 12px; border-top: 2px dashed #D8CBB8; font-size: 12px; font-weight: 700; color: #7D685B; line-height: 1.7; text-align: left; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <main class="card">
-    <img class="logo" src="icons/icon-192.png" alt="小豬存錢筒" />
-    <h1>小豬存錢筒</h1>
-    <p class="sub">信封分裝預算・每個信封都能獨立月結</p>
+  <!-- 記帳本（GAS）直接內嵌在這裡，畫面不會跳出去，所以沒有網址列 -->
+  <iframe id="app-frame" class="hidden" title="小豬存錢筒" allow="clipboard-write"></iframe>
 
-    <p id="loading" class="loading hidden">🐷 正在打開記帳本…</p>
-
-    <div id="browser-view">
-      <a id="open-btn" class="btn" href="#">🐷 打開記帳本</a>
-      <div class="tips">
-        <p>📱 <b>加入手機桌面：</b></p>
-        <p>・iPhone：用 Safari 開啟 → 點「分享」⬆️ →「加入主畫面」</p>
-        <p>・Android：用 Chrome 開啟 → 右上「⋮」→「安裝應用程式」或「加到主畫面」</p>
+  <div id="lock-screen" class="screen hidden">
+    <form class="card" id="pin-form" autocomplete="off">
+      <img class="logo" src="icons/icon-192.png" alt="" />
+      <h1>小豬存錢筒</h1>
+      <p class="sub">請輸入記帳本密碼</p>
+      <input id="pin-input" type="password" inputmode="text" placeholder="密碼" />
+      <button type="submit">🐷 打開記帳本</button>
+      <p class="err" id="pin-err"></p>
+      <div class="hint">
+        密碼只會記在這支手機上，下次打開不用再輸入。<br />
+        📱 加到桌面：iPhone 用 Safari →「分享」→「加入主畫面」；Android 用 Chrome →「⋮」→「安裝應用程式」
       </div>
+    </form>
+  </div>
+
+  <div id="setup-screen" class="screen hidden">
+    <div class="card">
+      <img class="logo" src="icons/icon-192.png" alt="" />
+      <h1>小豬存錢筒</h1>
+      <p class="err">⚠️ 尚未設定 GAS 網址，請修改 index.html 的 GAS_URL</p>
     </div>
-  </main>
+  </div>
 
   <script>
     // ======================================================================
-    // ⚠️ 只要改這一行：貼上你的 GAS 網頁應用程式網址（結尾是 /exec）
+    // GAS 網頁應用程式網址（結尾是 /exec）
     // ======================================================================
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzWtyAFIc88kkpWxwjETxNjgh7CcrI_v1kpwlgY1b188nQHEOTbaJ9QWkwDzxXmpXTNwQ/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/請貼上你的部署ID/exec';
 
-    const configured = /^https:\/\/script\.google\.com\/.+\/exec/.test(GAS_URL) && !GAS_URL.includes('請貼上');
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    const openBtn = document.getElementById('open-btn');
+    const PIN_KEY = 'piggy_pin';
+    const frame = document.getElementById('app-frame');
+    const lockScreen = document.getElementById('lock-screen');
+    const pinInput = document.getElementById('pin-input');
+    const pinErr = document.getElementById('pin-err');
 
-    if (!configured) {
-      openBtn.textContent = '⚠️ 尚未設定 GAS 網址';
-      openBtn.removeAttribute('href');
-    } else {
-      openBtn.href = GAS_URL;
-      // 從桌面圖示開啟時才自動跳轉；用瀏覽器開啟時停在本頁，方便「加入主畫面」
-      if (isStandalone) {
-        document.getElementById('browser-view').classList.add('hidden');
-        document.getElementById('loading').classList.remove('hidden');
-        setTimeout(() => location.replace(GAS_URL), 350);
+    function getPin() { try { return localStorage.getItem(PIN_KEY) || ''; } catch (e) { return ''; } }
+    function setPin(v) { try { v ? localStorage.setItem(PIN_KEY, v) : localStorage.removeItem(PIN_KEY); } catch (e) {} }
+
+    function openApp(pin) {
+      lockScreen.classList.add('hidden');
+      frame.classList.remove('hidden');
+      frame.src = GAS_URL + '?k=' + encodeURIComponent(pin);
+    }
+
+    function showLock(msg) {
+      frame.classList.add('hidden');
+      frame.removeAttribute('src');
+      lockScreen.classList.remove('hidden');
+      pinErr.textContent = msg || '';
+      pinInput.value = '';
+    }
+
+    // GAS 回報密碼錯誤 → 清除記住的密碼，重新輸入
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'piggy-bad-key') {
+        setPin('');
+        showLock('密碼錯誤，請重新輸入');
       }
+    });
+
+    document.getElementById('pin-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pin = pinInput.value.trim();
+      if (!pin) { pinErr.textContent = '請輸入密碼'; return; }
+      setPin(pin);
+      pinInput.blur();
+      openApp(pin);
+    });
+
+    const configured = /^https:\/\/script\.google\.com\/.+\/exec$/.test(GAS_URL);
+    if (!configured) {
+      document.getElementById('setup-screen').classList.remove('hidden');
+    } else if (getPin()) {
+      openApp(getPin());
+    } else {
+      showLock();
     }
 
     if ('serviceWorker' in navigator) {

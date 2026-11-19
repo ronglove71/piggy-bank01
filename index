@@ -121,10 +121,11 @@
       openApp(pin);
     });
 
-    const configured = /^https:\/\/script\.google\.com\/.+\/exec$/.test(GAS_URL);
+    const configured = /^https:\/\/script\.google\.com\/.+\/exec$/.test(GAS_URL) && !GAS_URL.includes('請貼上');
     if (!configured) {
       document.getElementById('setup-screen').classList.remove('hidden');
-   } else {
+    } else {
+      // 直接打開記帳本；只有在 GAS 有設定密碼（PIGGY_PIN）時才會跳出密碼畫面
       openApp(getPin());
     }
 

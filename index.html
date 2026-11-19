@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>小豬存錢筒</title>
+  <meta name="theme-color" content="#FAF6F0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="小豬存錢筒" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+      font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif; color: #4A3B32;
+      background: #FAF6F0 radial-gradient(#D8CBB8 1.25px, transparent 1.25px); background-size: 18px 18px;
+    }
+    .card {
+      width: 100%; max-width: 360px; text-align: center; background: #FFFDF9;
+      border: 2px solid #4A3B32; border-radius: 22px; box-shadow: 3px 4px 0 #4A3B32; padding: 26px 20px;
+    }
+    .logo { width: 112px; height: 112px; border-radius: 26px; border: 2px solid #4A3B32; box-shadow: 2px 3px 0 #4A3B32; }
+    h1 { font-size: 22px; font-weight: 900; margin-top: 14px; }
+    .sub { font-size: 13px; font-weight: 700; color: #7D685B; margin-top: 4px; }
+    .btn {
+      display: block; width: 100%; margin-top: 18px; padding: 12px; font-size: 15px; font-weight: 900;
+      color: #4A3B32; text-decoration: none; background: #F7E199; border: 2px solid #4A3B32;
+      border-radius: 14px; box-shadow: 2px 3px 0 #4A3B32;
+    }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .tips { margin-top: 18px; padding-top: 14px; border-top: 2px dashed #D8CBB8; text-align: left; font-size: 13px; font-weight: 700; line-height: 1.7; }
+    .tips b { color: #C84B4B; }
+    .loading { margin-top: 16px; font-size: 14px; font-weight: 800; color: #7D685B; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img class="logo" src="icons/icon-192.png" alt="小豬存錢筒" />
+    <h1>小豬存錢筒</h1>
+    <p class="sub">信封分裝預算・每個信封都能獨立月結</p>
+
+    <p id="loading" class="loading hidden">🐷 正在打開記帳本…</p>
+
+    <div id="browser-view">
+      <a id="open-btn" class="btn" href="#">🐷 打開記帳本</a>
+      <div class="tips">
+        <p>📱 <b>加入手機桌面：</b></p>
+        <p>・iPhone：用 Safari 開啟 → 點「分享」⬆️ →「加入主畫面」</p>
+        <p>・Android：用 Chrome 開啟 → 右上「⋮」→「安裝應用程式」或「加到主畫面」</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ======================================================================
+    // ⚠️ 只要改這一行：貼上你的 GAS 網頁應用程式網址（結尾是 /exec）
+    // ======================================================================
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzWtyAFIc88kkpWxwjETxNjgh7CcrI_v1kpwlgY1b188nQHEOTbaJ9QWkwDzxXmpXTNwQ/exec';
+
+    const configured = /^https:\/\/script\.google\.com\/.+\/exec/.test(GAS_URL) && !GAS_URL.includes('請貼上');
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const openBtn = document.getElementById('open-btn');
+
+    if (!configured) {
+      openBtn.textContent = '⚠️ 尚未設定 GAS 網址';
+      openBtn.removeAttribute('href');
+    } else {
+      openBtn.href = GAS_URL;
+      // 從桌面圖示開啟時才自動跳轉；用瀏覽器開啟時停在本頁，方便「加入主畫面」
+      if (isStandalone) {
+        document.getElementById('browser-view').classList.add('hidden');
+        document.getElementById('loading').classList.remove('hidden');
+        setTimeout(() => location.replace(GAS_URL), 350);
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
